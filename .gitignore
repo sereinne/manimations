@@ -2,7 +2,7 @@
 __pycache__/
 *.py[oc]
 build/
-output/
+youtube/output/
 dist/
 wheels/
 youtube/media/
