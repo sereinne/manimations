@@ -1,0 +1,2 @@
+# This file is used internally by FFMPEG.
+file 'file:/home/barie/work/sereinne/python/manimations/youtube/output/videos/main/1080p30/partial_movie_files/WipeEffect/3445125925_1232978167_3549406918.mp4'
