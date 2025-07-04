@@ -1,0 +1,28 @@
+# from the output of `manim cfg show` the path to videos file are formatted below 
+# {media_dir}/videos/{module}/{quality}
+
+# a directory where all the artifacts such as images, text, videos are dumped from `manim`
+media_dir := "output"
+# the file manim used to generate scenes or videos
+module := "main"
+# the quality of the video by defauilt `manim` uses low quality for prototyping. You can change the quality based on your needs.
+quality := "1080p30"
+# full path to videos from the root directory
+videos_prefix := "./" + media_dir + "/videos/" + module + "/" + quality + "/"
+
+
+# turn manim code into videos
+makevid:
+    # make sure we can use manim
+    source .venv/bin/activate.fish
+    # build all scenes
+    manim main.py Intro MeatAndPotatoes Outro
+
+# combine all of videos into a single video file and run it.
+runvid:
+    # find video files using `find` command, sort them and pipe it into a file called `list.txt`
+    find {{videos_prefix}} -maxdepth 1 -type f -name '*.mp4' | sort | xargs -I {} echo "file '{}'" > list.txt
+    # combine videos
+    ffmpeg -f concat -safe 0 -i list.txt -c copy output.mp4
+    # run the combined video files
+    vlc output.mp4
