@@ -1,0 +1,7 @@
+path := "media/videos/intro/1080p60/YoutubeIntro.mp4"
+
+b:
+    manim intro.py YoutubeIntro
+
+r: b 
+   mpv {{path}}

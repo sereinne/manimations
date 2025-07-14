@@ -13,8 +13,6 @@ videos_prefix := "./" + media_dir + "/videos/" + module + "/" + quality + "/"
 
 # turn manim code into videos
 makevid:
-    # make sure we can use manim
-    source .venv/bin/activate.fish
     # build all scenes
     manim main.py Intro MeatAndPotatoes Outro
 
@@ -25,4 +23,4 @@ runvid:
     # combine videos
     ffmpeg -f concat -safe 0 -i list.txt -c copy output.mp4
     # run the combined video files
-    vlc output.mp4
+    open -a "QuickTime Player" output.mp4
