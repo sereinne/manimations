@@ -1,26 +1,31 @@
-# from the output of `manim cfg show` the path to videos file are formatted below 
-# {media_dir}/videos/{module}/{quality}
+# default path where `manim` generates its artifacts
+path := "output/videos/main/1080p30/"
 
-# a directory where all the artifacts such as images, text, videos are dumped from `manim`
-media_dir := "output"
-# the file manim used to generate scenes or videos
-module := "main"
-# the quality of the video by defauilt `manim` uses low quality for prototyping. You can change the quality based on your needs.
-quality := "1080p30"
-# full path to videos from the root directory
-videos_prefix := "./" + media_dir + "/videos/" + module + "/" + quality + "/"
+alias rc := run-clean
 
+combinevid:
+   # get all complete video files and sort them based on the oldest to newest video files
+   # the output of the command above is in one line, make them intro separate lines
+   # for each new line (that is the path to the video files), format it into 'file ./path/to/video/file.mp4' redirect echo's output, intro a file called `target_files`
+   fd . --max-depth 1 -e mp4 --full-path {{path}} -X ls -tr \
+   | tr ' ' '\n' \
+   | xargs -I {} echo "file '{}'" > target_files
+   # make `ffmpeg` concatenate those video files based on the ordering inside `target_files`
+   ffmpeg -f concat -i target_files -c copy final.mp4
+   # cleanup
+   rip target_files
 
-# turn manim code into videos
 makevid:
-    # build all scenes
-    manim main.py Intro MeatAndPotatoes Outro
+   # make `manim` generate all active scenes 
+   manim main.py $(rg --no-filename --no-line-number --only-matching "^class \w+" main.py | awk '{print $2}' | xargs -I {} echo "{}" | tr '\n' ' ')
 
-# combine all of videos into a single video file and run it.
-runvid:
-    # find video files using `find` command, sort them and pipe it into a file called `list.txt`
-    find {{videos_prefix}} -maxdepth 1 -type f -name '*.mp4' | sort | xargs -I {} echo "file '{}'" > list.txt
-    # combine videos
-    ffmpeg -f concat -safe 0 -i list.txt -c copy output.mp4
-    # run the combined video files
-    open -a "QuickTime Player" output.mp4
+# before `run-clean` is getting run, `just` will run `makevid` and `combinevid` command sequentially
+run-clean: makevid combinevid
+   # run the combined video
+   mpv final.mp4
+   # remove the combined video
+   rip final.mp4
+   # remove the output directory
+   rip output/
+   # remove from disk
+   yes | rip -d
